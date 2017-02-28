@@ -19,6 +19,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.hyphenate.easeui.domain.User;
 
+import cn.ucai.live.LiveHelper;
+
 public class DbOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
@@ -58,8 +60,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
     }
 
     private static String getUserDatabaseName() {
-        return "";
-//                LiveHelper.getInstance().getCurrentUsernName() + "_demo.db";
+        return LiveHelper.getInstance().getCurrentUsernName() + "_demo.db";
     }
 
     @Override
