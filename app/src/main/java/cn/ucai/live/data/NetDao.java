@@ -11,6 +11,7 @@ import cn.ucai.live.I;
 import cn.ucai.live.utils.MD5;
 import cn.ucai.live.utils.OkHttpUtils;
 import cn.ucai.live.utils.OnCompleteListener;
+import okhttp3.OkHttpClient;
 
 /**
  * Created by Administrator on 2017/2/8.
@@ -146,6 +147,13 @@ public class NetDao {
         OkHttpUtils<String> utils = new OkHttpUtils<>(context);
         utils.setRequestUrl(I.REQUEST_DELETE_GROUP)
                 .addParam(I.Group.HX_ID, hxid)
+                .targetClass(String.class)
+                .execute(listener);
+    }
+
+    public static void loadLiveList(Context context, OnCompleteListener<String> listener) {
+        OkHttpUtils<String> utils = new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_GET_ALL_CHATROOM)
                 .targetClass(String.class)
                 .execute(listener);
     }
