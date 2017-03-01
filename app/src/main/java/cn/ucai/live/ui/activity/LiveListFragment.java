@@ -81,7 +81,7 @@ public class LiveListFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         chatRoomList = new ArrayList<EMChatRoom>();
         rooms = new ArrayList<EMChatRoom>();
-        adapter = new LiveAdapter(getContext(), getLiveRoomList(chatRoomList));
+//        adapter = new LiveAdapter(getContext(), getLiveRoomList(chatRoomList));
 
         gm = new GridLayoutManager(getContext(), 2);
         recyclerView = new RecyclerView(getContext());
@@ -91,7 +91,7 @@ public class LiveListFragment extends Fragment {
 //        GridLayoutManager glm = (GridLayoutManager) recyclerView.getLayoutManager();
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new GridMarginDecoration(6));
-        recyclerView.setAdapter(adapter);
+//        recyclerView.setAdapter(adapter);
 
 
 //        footLoadingLayout = (LinearLayout) footView.findViewById(R.id.loading_layout);
@@ -168,11 +168,9 @@ public class LiveListFragment extends Fragment {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-                    if (pageCount != 0) {
-                        int lastPosition = gm.findLastVisibleItemPosition();
-                        if (hasMoreData && isLoading && lastPosition == listView.getCount() - 1) {
-                            loadAndShowData();
-                        }
+                    int lastPosition = gm.findLastVisibleItemPosition();
+                    if (hasMoreData && isLoading && lastPosition == chatRoomList.size() - 1) {
+                        loadAndShowData();
                     }
                 }
             }
@@ -204,14 +202,15 @@ public class LiveListFragment extends Fragment {
 //                                pb.setVisibility(View.INVISIBLE);
                                 isFirstLoading = false;
                                 adapter = new LiveAdapter(getContext(), getLiveRoomList(chatRoomList));
+                                recyclerView.setAdapter(adapter);
 //                                listView.setAdapter(adapter);
 //                                rooms.addAll(chatRooms);
                             } else {
                                 if (chatRooms.size() < pagesize) {
                                     hasMoreData = false;
-                                    footLoadingLayout.setVisibility(View.VISIBLE);
-                                    footLoadingPB.setVisibility(View.GONE);
-                                    footLoadingText.setText("No more data");
+//                                    footLoadingLayout.setVisibility(View.VISIBLE);
+//                                    footLoadingPB.setVisibility(View.GONE);
+//                                    footLoadingText.setText("No more data");
                                 }
                                 adapter.notifyDataSetChanged();
                             }
