@@ -289,7 +289,7 @@ public class LiveListFragment extends Fragment {
                     LiveRoom room = liveRoomList.get(position);
                     if (room.getAnchorId().equals(EMClient.getInstance().getCurrentUser())) {
                         context.startActivity(new Intent(context, StartLiveActivity.class)
-                                .putExtra("liveId", room.getId()));
+                                .putExtra("liveRoom", room));
                     } else {
                         context.startActivity(new Intent(context, LiveDetailsActivity.class)
                                 .putExtra("liveroom", liveRoomList.get(position)));

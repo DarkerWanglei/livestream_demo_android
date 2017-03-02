@@ -46,10 +46,13 @@ import com.ucloud.live.UEasyStreaming;
 import com.ucloud.live.UStreamingProfile;
 import com.ucloud.live.widget.UAspectFrameLayout;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+
+import static android.R.attr.id;
 
 public class StartLiveActivity extends LiveBaseActivity
         implements UEasyStreaming.UStreamingStateListener {
@@ -115,11 +118,11 @@ public class StartLiveActivity extends LiveBaseActivity
 
         EaseUserUtils.setAppUserAvatar(this, EMClient.getInstance().getCurrentUser(), userAvatar);
         EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(), usernameView);
-        String id = getIntent().getStringExtra("liveId");
+        LiveRoom liveRoom = getIntent().getParcelableExtra("liveRoom");
         if (chatroomId != null && !chatroomId.equals("")) {
-            L.e(TAG, "getIntent,id" + id);
-            liveId = id;
-            chatroomId = id;
+            L.e(TAG, "getIntent,liveRoom" + liveRoom);
+            liveId = liveRoom.getId();
+            chatroomId = liveRoom.getChatroomId();
         } else {
             liveId = EMClient.getInstance().getCurrentUser();
         }
@@ -291,7 +294,7 @@ public class StartLiveActivity extends LiveBaseActivity
         }
         long endTime = System.currentTimeMillis();
         long time = endTime - startTime - 8 * 60 * 60 * 1000;
-        SimpleDateFormat format = new SimpleDateFormat("HH:MM:SS");
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
         String t = format.format(new Date(time));
         L.e(TAG, "t=" + t);
         removeLive();
