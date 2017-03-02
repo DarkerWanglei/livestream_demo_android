@@ -50,7 +50,7 @@ public class MyProfileFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
 //        usernameView.setText(EMClient.getInstance().getCurrentUser());
-        EaseUserUtils.setAppUserAvatarByPath(getContext(), EMClient.getInstance().getCurrentUser(), ivAvatar);
+        EaseUserUtils.setAppUserAvatar(getContext(), EMClient.getInstance().getCurrentUser(), ivAvatar);
         EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(), usernameView);
 
         //liveSettings = new LiveSettings(getContext());

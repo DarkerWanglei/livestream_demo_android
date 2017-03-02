@@ -46,6 +46,8 @@ import com.ucloud.live.UEasyStreaming;
 import com.ucloud.live.UStreamingProfile;
 import com.ucloud.live.widget.UAspectFrameLayout;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -90,6 +92,8 @@ public class StartLiveActivity extends LiveBaseActivity
 
     boolean isStarted;
 
+    long startTime;
+
     ProgressDialog pd;
 
     private Handler handler = new Handler() {
@@ -112,15 +116,12 @@ public class StartLiveActivity extends LiveBaseActivity
         EaseUserUtils.setAppUserAvatar(this, EMClient.getInstance().getCurrentUser(), userAvatar);
         EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(), usernameView);
         String id = getIntent().getStringExtra("liveId");
-        if (id != null && !liveId.equals("")) {
+        if (chatroomId != null && !chatroomId.equals("")) {
             L.e(TAG, "getIntent,id" + id);
             liveId = id;
             chatroomId = id;
         } else {
-            pd = new ProgressDialog(this);
-            pd.setMessage("开始直播...");
-            pd.show();
-            createLive();
+            liveId = EMClient.getInstance().getCurrentUser();
         }
         initEnv();
     }
@@ -162,6 +163,8 @@ public class StartLiveActivity extends LiveBaseActivity
                 Toast.makeText(this, event.toString(), Toast.LENGTH_LONG).show();
                 break;
             case UEasyStreaming.State.START_RECORDING:
+                startTime = System.currentTimeMillis();
+                L.e(TAG, "startTime=" + startTime);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -209,12 +212,14 @@ public class StartLiveActivity extends LiveBaseActivity
     @OnClick(R.id.btn_start)
     void startLive() {
         //demo为了测试方便，只有指定的账号才能开启直播
-        if (liveId == null) {
-            CommonUtils.showShortToast("获取直播数据失败");
-            L.e(TAG, "id is null");
-            return;
+        if (chatroomId == null || chatroomId.equals("")) {
+            pd = new ProgressDialog(this);
+            pd.setMessage("开始直播...");
+            pd.show();
+            createLive();
+        } else {
+            startLiveByChatRoom();
         }
-        startLiveByChatRoom();
     }
 
     private void startLiveByChatRoom() {
@@ -253,8 +258,8 @@ public class StartLiveActivity extends LiveBaseActivity
                         if (id != null) {
                             success = true;
                             L.e("startLive,id=" + id);
-                            initLive(id);
-//                            startLiveByChatRoom();
+                            chatroomId = id;
+                            startLiveByChatRoom();
                         }
                     }
                     if (!success) {
@@ -274,12 +279,6 @@ public class StartLiveActivity extends LiveBaseActivity
         }
     }
 
-    private void initLive(String id) {
-        liveId = id;
-        chatroomId = id;
-        initEnv();
-    }
-
     /**
      * 关闭直播显示直播成果
      */
@@ -290,7 +289,27 @@ public class StartLiveActivity extends LiveBaseActivity
             finish();
             return;
         }
-        showConfirmCloseLayout();
+        long endTime = System.currentTimeMillis();
+        long time = endTime - startTime - 8 * 60 * 60 * 1000;
+        SimpleDateFormat format = new SimpleDateFormat("HH:MM:SS");
+        String t = format.format(new Date(time));
+        L.e(TAG, "t=" + t);
+        removeLive();
+        showConfirmCloseLayout(t);
+    }
+
+    private void removeLive() {
+        NetDao.removeLive(StartLiveActivity.this, chatroomId, new OnCompleteListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                L.e(TAG, "removeLive,s=" + s);
+            }
+
+            @Override
+            public void onError(String error) {
+                L.e(TAG, "removeLive,error=" + error);
+            }
+        });
     }
 
     @OnClick(R.id.img_bt_switch_voice)
@@ -305,20 +324,26 @@ public class StartLiveActivity extends LiveBaseActivity
         }
     }
 
-    private void showConfirmCloseLayout() {
+    private void showConfirmCloseLayout(String time) {
         //显示封面
         coverImage.setVisibility(View.VISIBLE);
-        List<LiveRoom> liveRoomList = TestDataRepository.getLiveRoomList();
-        for (LiveRoom liveRoom : liveRoomList) {
-            if (liveRoom.getId().equals(liveId)) {
-//                coverImage.setImageResource(liveRoom.getCover());
-                EaseUserUtils.setAppUserAvatar(StartLiveActivity.this, liveRoom.getAnchorId(), coverImage);
-            }
-        }
+        EaseUserUtils.setAppUserAvatar(StartLiveActivity.this, EMClient.getInstance().getCurrentUser(), coverImage);
+
+//        List<LiveRoom> liveRoomList = TestDataRepository.getLiveRoomList();
+//        for (LiveRoom liveRoom : liveRoomList) {
+//            if (liveRoom.getId().equals(liveId)) {
+////                coverImage.setImageResource(liveRoom.getCover());
+//            }
+//        }
         View view = liveEndLayout.inflate();
         Button closeConfirmBtn = (Button) view.findViewById(R.id.live_close_confirm);
-        TextView usernameView = (TextView) view.findViewById(R.id.tv_username);
-        usernameView.setText(EMClient.getInstance().getCurrentUser());
+        TextView usernameView = (TextView) view.findViewById(R.id.finish_tv_Username);
+        ImageView userAvatar = (ImageView) view.findViewById(R.id.finish_eiv_avatar);
+        TextView showTimeView = (TextView) view.findViewById(R.id.finish_show_time);
+        EaseUserUtils.setAppUserAvatar(StartLiveActivity.this, EMClient.getInstance().getCurrentUser(), userAvatar);
+        EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(), usernameView);
+        showTimeView.setText(time);
+//        usernameView.setText(EMClient.getInstance().getCurrentUser());
         closeConfirmBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
