@@ -19,6 +19,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.hyphenate.easeui.domain.User;
 
+import cn.ucai.live.I;
 import cn.ucai.live.LiveHelper;
 
 public class DbOpenHelper extends SQLiteOpenHelper {
@@ -48,6 +49,13 @@ public class DbOpenHelper extends SQLiteOpenHelper {
             + UserDao.USER_COLUMN_NAME_AVATAR_TYPE + " INTEGER,"
             + UserDao.USER_COLUMN_NAME_AVATAR_UPDATE_TIME + " TEXT);";
 
+    public static final String GIFT_TABLE_CREATE = "CREATE TABLE "
+            + UserDao.GIFT_TABLE_NAME + " ("
+            + UserDao.GIFT_COLUMN_NAME + " TEXT, "
+            + UserDao.GIFT_COLUMN_URL + " TEXT, "
+            + UserDao.GIFT_COLUMN_PRICE + " INTEGER, "
+            + UserDao.GIFT_COLUMN_ID + " INTEGER PRIMARY KEY);";
+
     private DbOpenHelper(Context context) {
         super(context, getUserDatabaseName(), null, DATABASE_VERSION);
     }
@@ -68,6 +76,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         db.execSQL(USERNAME_TABLE_CREATE);
         db.execSQL(CREATE_PREF_TABLE);
         db.execSQL(USER_TABLE_CREATE);
+        db.execSQL(GIFT_TABLE_CREATE);
     }
 
     @Override
