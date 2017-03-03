@@ -302,6 +302,7 @@ public class StartLiveActivity extends LiveBaseActivity
     }
 
     private void removeLive() {
+        L.e(TAG, "removeLive,chatroomId=" + chatroomId);
         NetDao.removeLive(StartLiveActivity.this, chatroomId, new OnCompleteListener<String>() {
             @Override
             public void onSuccess(String s) {

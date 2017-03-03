@@ -90,7 +90,9 @@ public class LiveListFragment extends Fragment {
         gm = new GridLayoutManager(getContext(), 2);
 //        recyclerView = new RecyclerView(getContext());
         recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerview);
+        adapter = new LiveAdapter(getContext(), getLiveRoomList(chatRoomList));
         recyclerView.setLayoutManager(gm);
+        recyclerView.setAdapter(adapter);
         mSrl = (SwipeRefreshLayout) getView().findViewById(R.id.srl);
         mtvRefresh = (TextView) getView().findViewById(R.id.tv_refresh);
 //        footView = getView().inflate(R.layout.em_listview_footer_view, recyclerView, false);
@@ -220,7 +222,6 @@ public class LiveListFragment extends Fragment {
                     final List<EMChatRoom> chatRooms = result.getData();
 
                     Log.e(TAG, "chatRooms=" + chatRooms.size());
-//                    pageCount = result.getPageCount();
                     getActivity().runOnUiThread(new Runnable() {
                         public void run() {
                             mSrl.setRefreshing(false);
@@ -234,18 +235,15 @@ public class LiveListFragment extends Fragment {
                             if (isFirstLoading) {
 //                                pb.setVisibility(View.INVISIBLE);
                                 isFirstLoading = false;
-                                adapter = new LiveAdapter(getContext(), getLiveRoomList(chatRoomList));
-                                recyclerView.setAdapter(adapter);
-//                                rooms.addAll(chatRooms);
-                            } else {
-                                if (chatRooms.size() < pagesize) {
-                                    hasMoreData = false;
-                                    footLoadingLayout.setVisibility(View.VISIBLE);
-                                    footLoadingPB.setVisibility(View.GONE);
-                                    footLoadingText.setText("No more data");
-                                }
-                                adapter.notifyDataSetChanged();
+                                adapter.initData(getLiveRoomList(chatRoomList));
                             }
+                            if (chatRooms.size() < pagesize) {
+                                hasMoreData = false;
+                                footLoadingLayout.setVisibility(View.VISIBLE);
+                                footLoadingPB.setVisibility(View.GONE);
+                                footLoadingText.setText("No more data");
+                            }
+                            adapter.notifyDataSetChanged();
                             isLoading = false;
                         }
                     });
@@ -313,6 +311,18 @@ public class LiveListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return liveRoomList.size();
+        }
+
+        public void initData(List<LiveRoom> liveRoomList) {
+            if (liveRoomList != null) {
+                this.liveRoomList.clear();
+            }
+            addData(liveRoomList);
+        }
+
+        private void addData(List<LiveRoom> liveRoomList) {
+            this.liveRoomList.addAll(liveRoomList);
+            notifyDataSetChanged();
         }
     }
 

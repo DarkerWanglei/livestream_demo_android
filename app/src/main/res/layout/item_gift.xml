@@ -29,6 +29,8 @@
         android:id="@+id/tvGiftPrice"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:text="399.99"
+        android:textColor="#d9d7d7"
         android:textSize="13sp" />
 </LinearLayout>
