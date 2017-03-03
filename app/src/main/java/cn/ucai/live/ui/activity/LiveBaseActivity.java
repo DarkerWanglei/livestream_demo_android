@@ -20,6 +20,7 @@ import butterknife.OnClick;
 import cn.ucai.live.I;
 import cn.ucai.live.ui.widget.LiveLeftGiftView;
 import cn.ucai.live.ui.widget.RoomMessagesView;
+import cn.ucai.live.utils.L;
 import cn.ucai.live.utils.Utils;
 
 import com.bumptech.glide.Glide;
@@ -396,18 +397,7 @@ public abstract class LiveBaseActivity extends BaseActivity {
 
 
     private void showUserDetailsDialog(String username) {
-        final RoomUserDetailsDialog dialog =
-                RoomUserDetailsDialog.newInstance(username);
-        dialog.setUserDetailsDialogListener(
-                new RoomUserDetailsDialog.UserDetailsDialogListener() {
-                    @Override
-                    public void onMentionClick(String username) {
-                        dialog.dismiss();
-                        messageView.getInputView().setText("@" + username + " ");
-                        showInputView();
-                    }
-                });
-        dialog.show(getSupportFragmentManager(), "RoomUserDetailsDialog");
+
     }
 
     private void showInputView() {
@@ -483,12 +473,20 @@ public abstract class LiveBaseActivity extends BaseActivity {
 
     @OnClick(R.id.present_image)
     void onPresentImageClick() {
+        final RoomGiftListDialog dialog =
+                RoomGiftListDialog.newInstance();
+        dialog.show(getSupportFragmentManager(), "RoomGiftListDialog");
+    }
+
+    private void sendGiftMsg() {
+        User user = EaseUserUtils.getAppUserInfo(EMClient.getInstance().getCurrentUser());
+        L.e(TAG, "send present,user=" + user);
         EMMessage message = EMMessage.createSendMessage(EMMessage.Type.CMD);
         message.setReceipt(chatroomId);
         EMCmdMessageBody cmdMessageBody = new EMCmdMessageBody(LiveConstants.CMD_GIFT);
         message.addBody(cmdMessageBody);
         message.setAttribute(I.User.NICK,
-                EaseUserUtils.getAppUserInfo(EMClient.getInstance().getCurrentUser()).getMUserNick());
+                user.getMUserNick());
         message.setChatType(EMMessage.ChatType.ChatRoom);
         EMClient.getInstance().chatManager().sendMessage(message);
         showLeftGiftVeiw(message);
