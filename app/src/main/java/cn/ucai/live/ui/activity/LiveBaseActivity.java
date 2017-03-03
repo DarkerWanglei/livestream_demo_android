@@ -1,16 +1,21 @@
 package cn.ucai.live.ui.activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,9 +23,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.live.I;
+import cn.ucai.live.LiveHelper;
+import cn.ucai.live.data.model.Gift;
 import cn.ucai.live.ui.widget.LiveLeftGiftView;
 import cn.ucai.live.ui.widget.RoomMessagesView;
 import cn.ucai.live.utils.L;
+import cn.ucai.live.utils.PreferenceManager;
 import cn.ucai.live.utils.Utils;
 
 import com.bumptech.glide.Glide;
@@ -481,10 +489,43 @@ public abstract class LiveBaseActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 int id = (int) view.getTag();
-                sendGiftMsg(id, dialog);
+                showPayMentTip(id, dialog);
             }
         });
         dialog.show(getSupportFragmentManager(), "RoomGiftListDialog");
+    }
+
+    private void showPayMentTip(final int id, final RoomGiftListDialog dialog) {
+        if (PreferenceManager.getInstance().getPayMentTip()) {
+            sendGiftMsg(id, dialog);
+        } else {
+            Gift gift = LiveHelper.getInstance().getAppGiftList().get(id);
+            AlertDialog.Builder builder = new AlertDialog.Builder(LiveBaseActivity.this);
+            builder.setTitle("提示")
+                    .setMessage("该礼物需要支付:" + gift.getGprice() + ",确认支付吗？");
+            View view = getLayoutInflater().inflate(R.layout.layout_payment_tip, null);
+            builder.setView(view);
+            final CheckBox cb = (CheckBox) view.findViewById(R.id.payment_tips_nomore);
+            cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    PreferenceManager.getInstance().setPayMentTip(isChecked);
+                }
+            });
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialog.dismiss();
+                    PreferenceManager.getInstance().setPayMentTip(false);
+                }
+            }).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    sendGiftMsg(id, dialog);
+                }
+            });
+            builder.show();
+        }
     }
 
     private void sendGiftMsg(int id, RoomGiftListDialog dialog) {
