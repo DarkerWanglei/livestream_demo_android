@@ -28,7 +28,7 @@
                 android:layout_alignParentLeft="true"
                 android:padding="10dp"
                 android:text="我的账单"
-                android:textColor="@color/common_black"
+                android:textColor="#080808"
                 android:textSize="15sp" />
 
             <TextView
@@ -38,7 +38,7 @@
                 android:layout_alignParentRight="true"
                 android:padding="10dp"
                 android:text="充值"
-                android:textColor="@color/common_red"
+                android:textColor="#f50303"
                 android:textSize="15sp" />
         </RelativeLayout>
     </LinearLayout>
