@@ -1189,7 +1189,7 @@ public class LiveHelper {
                         PreferenceManager.getInstance().setCurrentUserChange(wallet.getBalance());
                     }
                 }
-                if (success) {
+                if (!success) {
                     PreferenceManager.getInstance().setCurrentUserChange(0);
                 }
             }

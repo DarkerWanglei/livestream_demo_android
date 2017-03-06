@@ -407,6 +407,18 @@ public abstract class LiveBaseActivity extends BaseActivity {
 
 
     private void showUserDetailsDialog(String username) {
+        final RoomUserDetailsDialog dialog =
+                RoomUserDetailsDialog.newInstance(username);
+        dialog.setUserDetailsDialogListener(
+                new RoomUserDetailsDialog.UserDetailsDialogListener() {
+                    @Override
+                    public void onMentionClick(String username) {
+                        dialog.dismiss();
+                        messageView.getInputView().setText("@" + username + " ");
+                        showInputView();
+                    }
+                });
+        dialog.show(getSupportFragmentManager(), "RoomUserDetailsDialog");
 
     }
 
