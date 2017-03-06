@@ -216,12 +216,12 @@ public class PreferenceManager {
     }
 
     public void setCurrentUserChange(int change) {
-        editor.putInt(SHARED_KEY_SHARED_KEY_PAYMENT_TIP, change);
+        editor.putInt(SHARED_KEY_SHARED_KEY_CURRENTUSER_CHANGE, change);
         editor.apply();
     }
 
     public int getCurrentUserChange() {
-        return mSharedPreferences.getInt(SHARED_KEY_SHARED_KEY_PAYMENT_TIP, 0);
+        return mSharedPreferences.getInt(SHARED_KEY_SHARED_KEY_CURRENTUSER_CHANGE, 0);
     }
 
     public String getCurrentUserNick() {

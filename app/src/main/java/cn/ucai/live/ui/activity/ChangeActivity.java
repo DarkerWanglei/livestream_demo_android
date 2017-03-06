@@ -33,6 +33,7 @@ public class ChangeActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change);
         ButterKnife.bind(this);
+        setChange();
         initView();
         initData();
     }

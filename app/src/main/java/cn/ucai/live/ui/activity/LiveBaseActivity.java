@@ -24,11 +24,17 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.live.I;
 import cn.ucai.live.LiveHelper;
+import cn.ucai.live.data.NetDao;
 import cn.ucai.live.data.model.Gift;
+import cn.ucai.live.data.model.Result;
+import cn.ucai.live.data.model.Wallet;
 import cn.ucai.live.ui.widget.LiveLeftGiftView;
 import cn.ucai.live.ui.widget.RoomMessagesView;
+import cn.ucai.live.utils.CommonUtils;
 import cn.ucai.live.utils.L;
+import cn.ucai.live.utils.OnCompleteListener;
 import cn.ucai.live.utils.PreferenceManager;
+import cn.ucai.live.utils.ResultUtils;
 import cn.ucai.live.utils.Utils;
 
 import com.bumptech.glide.Glide;
@@ -508,10 +514,10 @@ public abstract class LiveBaseActivity extends BaseActivity {
     }
 
     private void showPayMentTip(final int id, final RoomGiftListDialog dialog) {
+        final Gift gift = LiveHelper.getInstance().getAppGiftList().get(id);
         if (PreferenceManager.getInstance().getPayMentTip()) {
-            sendGiftMsg(id, dialog);
+            sendGift(dialog, gift);
         } else {
-            Gift gift = LiveHelper.getInstance().getAppGiftList().get(id);
             AlertDialog.Builder builder = new AlertDialog.Builder(LiveBaseActivity.this);
             builder.setTitle("提示")
                     .setMessage("该礼物需要支付:" + gift.getGprice() + ",确认支付吗？");
@@ -533,7 +539,57 @@ public abstract class LiveBaseActivity extends BaseActivity {
             }).setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    sendGiftMsg(id, dialog);
+                    sendGift(dialog, gift);
+                }
+            });
+            builder.show();
+        }
+    }
+
+    private void sendGift(final RoomGiftListDialog dialog, final Gift gift) {
+        int change = PreferenceManager.getInstance().getCurrentUserChange();
+        L.e(TAG, "sendGift,change=" + change);
+        if (change >= gift.getGprice()) {
+            NetDao.givingGift(LiveBaseActivity.this, EMClient.getInstance().getCurrentUser(),
+                    chatroom.getOwner(), gift.getId(), 1, new OnCompleteListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            boolean success = false;
+                            if (s != null) {
+                                Result result = ResultUtils.getResultFromJson(s, Wallet.class);
+                                if (result != null && result.isRetMsg()) {
+                                    success = true;
+                                    Wallet wallet = (Wallet) result.getRetData();
+                                    PreferenceManager.getInstance().setCurrentUserChange(wallet.getBalance());
+                                    int xxxxx = PreferenceManager.getInstance().getCurrentUserChange();
+                                    L.e(TAG, "onSuccess,xxxxx=" + xxxxx);
+                                    sendGiftMsg(gift.getId(), dialog);
+                                }
+                            }
+                            if (!success) {
+                                CommonUtils.showShortToast("打赏失败!");
+                            }
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            CommonUtils.showShortToast("打赏失败!" + error);
+                        }
+                    });
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(LiveBaseActivity.this);
+            builder.setTitle("充值")
+                    .setMessage("该礼物需要支付:" + gift.getGprice() + ",是否充值？");
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialog.dismiss();
+
+                }
+            }).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
                 }
             });
             builder.show();
